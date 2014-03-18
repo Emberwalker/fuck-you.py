@@ -9,6 +9,8 @@ import psutil
 alpha = u" -_abcdefghijklmnopqrstuvwxyz1234567890"
 flipped = u" -_ɐqɔpǝɟɓɥıɾʞlɯuodbɹsʇnʌʍxʎz⇂ᄅƐㄣގ9ㄥ860"
 
+flip_dict = dict(zip(alpha, flipped))
+
 
 # Functions
 def killall(ps):
@@ -18,29 +20,30 @@ def killall(ps):
 
 
 def success(name):
-    out = u""
-    for i in range(0, len(name)):
-        out += flipped[alpha.index(name[i])]
-
+    out = ''.join(flip_dict[a] for a in name)
     print(u"\n  (╯°□°）╯︵{}\n".format(out))
 
 
-# Main
-if len(sys.argv) is 1:
-    print "Usage: {0} [you...] PROCESS_NAME".format(sys.argv[0])
-    exit(-1)
+def main(*args):
+    try:
+        pname = args[-1].lower()
+    except IndexError:
+        print "Usage: {0} [you...] PROCESS_NAME".format(sys.argv[0])
+        exit(-1)
 
-pname = sys.argv[len(sys.argv) - 1].lower()
-found = list()
+    found = list()
 
-for process in psutil.process_iter():
-    if process.name().lower() == pname:
-        found.append(process)
+    for process in psutil.process_iter():
+        if process.name().lower() == pname:
+            found.append(process)
 
-if len(found) is 0:
-    print(u"\n  (；￣Д￣) . o O( It’s not very effective... )\n")
-    exit(-255)
+    if not found:
+        print(u"\n  (；￣Д￣) . o O( It’s not very effective... )\n")
+        exit(-255)
 
-killall(found)
-success(pname)
-exit(0)
+    killall(found)
+    success(pname)
+    exit(0)
+
+if __name__ == '__main__':
+    main(*sys.argv[1:])
